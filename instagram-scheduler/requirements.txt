@@ -1,0 +1,4 @@
+Pillow>=10.0
+requests>=2.31
+# Optional: only needed when [hosting] mode = "s3" (AWS S3, Cloudflare R2, Backblaze B2, ...)
+# boto3>=1.34
