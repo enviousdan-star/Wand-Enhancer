@@ -1,0 +1,91 @@
+# Copy to config.toml (git-ignored) and fill in. Paths are relative to this file.
+database = "igsched.db"
+
+[account]
+username = "nyacespb"
+# Numeric Instagram professional account id (or set the IG_USER_ID env var).
+ig_user_id = ""
+# The long-lived access token is read from this env var. Don't paste tokens into files you commit.
+access_token_env = "IG_ACCESS_TOKEN"
+# "graph.facebook.com" for a token from Facebook Login (Page-linked account),
+# "graph.instagram.com" for a token from Instagram Login.
+api_host = "graph.facebook.com"
+api_version = "v23.0"
+# Times you type in --at are interpreted in this zone.
+timezone = "America/New_York"
+
+[hosting]
+# Instagram downloads images from a public HTTPS URL at publish time.
+# "local": prepared JPEGs are written to public_dir, which your web server / tunnel must serve at public_base_url.
+# "s3":    uploaded to an S3-compatible bucket (AWS S3, Cloudflare R2, Backblaze B2). Needs `pip install boto3`.
+mode = "local"
+public_dir = "public"
+public_base_url = "https://example.com/ig"
+# s3_bucket = "nyacespb-media"
+# s3_prefix = "instagram/"
+# s3_endpoint_url = "https://<account>.r2.cloudflarestorage.com"   # omit for AWS
+# s3_region = "us-east-1"
+# With s3, leave public_base_url empty to use 7-day presigned URLs, or set it to the bucket's public/CDN URL.
+
+[images]
+target_width = 1440      # Instagram keeps up to 1440px; we never upscale
+min_width_warning = 1080 # warn when the source is smaller than this
+jpeg_quality = 95        # stepped down only if the file would exceed max_bytes
+min_jpeg_quality = 82
+max_bytes = 8388608      # Instagram API limit: 8 MB
+fit = "pad"              # "pad" keeps the whole photo (good for sponsor boards); "crop" center-crops
+pad_color = "#ffffff"
+
+[captions]
+max_hashtags = 30                 # Instagram's hard limit
+hashtags_in_first_comment = false # true = keep the caption clean, post hashtags as the first comment
+sponsor_line_prefix = "Thanks to our partners"
+default_hashtag_sets = ["default"]
+rotation_slots = 1                # how many "rotate" sponsors appear on each post
+
+# Hashtag sets. Pick per post with --hashtags default,gameday
+[hashtags]
+default = ["#nyacespb", "#nyaces"]
+gameday = ["#gameday", "#matchday"]
+community = ["#community", "#newyork"]
+
+# Sponsors. cadence:
+#   "always"  -> tagged on every post
+#   "every_n" -> every Nth post (every_n = 3)
+#   "rotate"  -> takes turns with the other rotating sponsors (captions.rotation_slots per post)
+#   "manual"  -> only when named with --sponsors
+# tag_in_photo: tag their account on the image (cover image for carousels)
+# mention_in_caption: add @handle to the sponsor line in the caption
+# collaborator: send a Collab invite (post appears on their profile too once they accept; max 3)
+# x/y: optional tag position (0-1). Default is a row along the bottom.
+[[sponsors]]
+handle = "main_sponsor"
+name = "Main Sponsor"
+cadence = "always"
+collaborator = false
+
+[[sponsors]]
+handle = "partner_one"
+cadence = "rotate"
+
+[[sponsors]]
+handle = "partner_two"
+cadence = "rotate"
+
+[[sponsors]]
+handle = "venue_partner"
+cadence = "every_n"
+every_n = 3
+tag_in_photo = true
+mention_in_caption = false
+
+[comments]
+# Comments containing any of these (case-insensitive) are hidden automatically.
+hide_keywords = ["free followers", "promo code", "dm me for", "crypto", "onlyfans"]
+sync_media_limit = 25     # how many recent posts to watch
+sync_every_minutes = 15   # comment sync interval while `run` is active
+
+# Auto-replies: first matching rule wins; each comment gets at most one. {username} is substituted.
+[[comments.auto_replies]]
+match = ["tickets", "how do i join", "tryouts"]
+reply = "Thanks @{username}! All the details are at the link in our bio."
